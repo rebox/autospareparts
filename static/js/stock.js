@@ -32,6 +32,7 @@ function loadStock(){
     }).fail(function (jqXHR, textStatus, textError){
 
         console.log("Error in loadStock");
+        alertify.alert("An error has occurred.");
 
     });
 }
@@ -58,6 +59,7 @@ function loadShipments(){
     }).fail(function (jqXHR, textStatus, textError){
 
         console.log("Error in loadShipments");
+        alertify.alert("An error has occurred.");
 
     });
 }
@@ -107,6 +109,8 @@ function saveProduct(){
         quantity:$("#quantity").val()
     }
 
+    console.log("data: \n" + JSON.stringify(data));
+
     $.ajax({
         data: JSON.stringify(data),
         type: "POST",
@@ -119,14 +123,18 @@ function saveProduct(){
         console.log("el textStatus es: \n" + textStatus );
         console.log("el jqXHR es: \n" + jqXHR );
 
-        $("#modal-product").modal('hide');
-        loadStock();
+        alertify.alert("Auto Spare Parts", "Product created corrctly",
+            function(){
+                $("#modal-product").modal('hide');
+                loadStock();
+            });
 
     }).fail(function (jqXHR, textStatus, textError){
         console.log("Error");
         console.log("el textStatus es: \n" + textStatus );
         console.log("el jqXHR es: \n" + jqXHR );
         console.log("el textError es: \n" + textError );
+        alertify.alert("An error has occurred.");
     });
 }
 
@@ -176,14 +184,18 @@ function updateProduct(id){
         console.log("el data es: \n" + data );
         console.log("el textStatus es: \n" + textStatus );
         console.log("el jqXHR es: \n" + jqXHR );
-        $("#modal-product").modal('hide');
-        loadStock();
 
-    }).fail(function (jqXHR, textStatus, textError){
+        alertify.alert("Auto Spare Parts", "Product updated corrctly",
+            function(){
+                $("#modal-product").modal('hide');
+                loadStock();
+            });
+      }).fail(function (jqXHR, textStatus, textError){
         console.log("Error");
         console.log("el textStatus es: \n" + textStatus );
         console.log("el jqXHR es: \n" + jqXHR );
         console.log("el textError es: \n" + textError );
+        alertify.alert("An error has occurred.");
     });
 }
 
@@ -238,14 +250,20 @@ function addProduct(id){
         console.log("el data es: \n" + data );
         console.log("el textStatus es: \n" + textStatus );
         console.log("el jqXHR es: \n" + jqXHR );
-        $("#modal-add").modal('hide');
-        loadStock();
+
+        alertify.alert("Auto Spare Parts", "Product added corrctly",
+            function(){
+                $("#modal-add").modal('hide');
+                loadStock();
+            });
+
 
     }).fail(function (jqXHR, textStatus, textError){
         console.log("Error");
         console.log("el textStatus es: \n" + textStatus );
         console.log("el jqXHR es: \n" + jqXHR );
         console.log("el textError es: \n" + textError );
+        alertify.alert("An error has occurred.");
     });
 
 }
@@ -270,7 +288,7 @@ function shipProduct(id){
     var total = current - toShip;
 
     if (toShip > current){
-        message = "The quantity to ship is greater than the quantity in inventory."
+        alertify.alert("Auto Spare Parts", "The quantity to ship is greater than the quantity in inventory.");
     }else{
         var data = {
             id:id,
@@ -293,16 +311,22 @@ function shipProduct(id){
             console.log("el textStatus es: \n" + textStatus );
             console.log("el jqXHR es: \n" + jqXHR );
 
-            removeProdcut(id, total);
+            alertify.alert("Auto Spare Parts", "Product successfully shipped",
+            function(){
+                removeProdcut(id, total);
 
-            $("#modal-ship").modal('hide');
-            loadShipments();
+                $("#modal-ship").modal('hide');
+                loadShipments();
+            });
+
+
 
         }).fail(function (jqXHR, textStatus, textError){
             console.log("Error");
             console.log("el textStatus es: \n" + textStatus );
             console.log("el jqXHR es: \n" + jqXHR );
             console.log("el textError es: \n" + textError );
+            alertify.alert("An error has occurred.");
         });
 
     }
@@ -348,5 +372,6 @@ function removeProdcut(id, quantity){
         console.log("el textStatus es: \n" + textStatus );
         console.log("el jqXHR es: \n" + jqXHR );
         console.log("el textError es: \n" + textError );
+        alertify.alert("An error has occurred.");
     });
 }
