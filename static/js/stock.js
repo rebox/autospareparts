@@ -1,5 +1,6 @@
 $(function () {
     loadStock();
+    loadShipments();
 });
 
 function loadStock(){
@@ -22,7 +23,7 @@ function loadStock(){
               "<td>" + elem.quantity + "</td>"+
               "<td>" +
                 "<button type=\"button\" class=\"btn btn-outline-success btn-sm mr-1\" onclick=\"openAddProduct(" + elem.id + ");\">Add</button>" +
-                "<button type=\"button\" class=\"btn btn-outline-danger btn-sm mr-1\" onclick=\"openRemoveProduct(" + elem.id + ");\">Ship</button>" +
+                "<button type=\"button\" class=\"btn btn-outline-danger btn-sm mr-1\" onclick=\"openShipProduct(" + elem.id + ");\">Ship</button>" +
                 "<button type=\"button\" class=\"btn btn-outline-info btn-sm\" onclick=\"openEditProduct(" + elem.id + ");\">Edit</button>" +
               "</td>"+
             "</tr>").appendTo($("#body-stock"));
@@ -30,7 +31,33 @@ function loadStock(){
 
     }).fail(function (jqXHR, textStatus, textError){
 
-        console.log("Error");
+        console.log("Error in loadStock");
+
+    });
+}
+
+function loadShipments(){
+    $.ajax({
+        type: "GET",
+        dataType:"json",
+        cahce: false,
+        url:"/shipment/"
+    }).done(function (data, textStatus, jqXHR){
+
+        $("#body-shipments").html("");
+        $.each(data, function (ind, elem) {
+            $("<tr>"+
+              "<td>" + elem.product + "</td>"+
+              "<td>" + elem.quantity + "</td>"+
+              "<td>" + elem.name + "</td>"+
+              "<td>" + elem.company + "</td>"+
+              "<td>" + elem.address + "</td>"+
+            "</tr>").appendTo($("#body-shipments"));
+        });
+
+    }).fail(function (jqXHR, textStatus, textError){
+
+        console.log("Error in loadShipments");
 
     });
 }
@@ -45,6 +72,16 @@ function validateEntry(e){
     }
 }
 
+function cleanProduct(){
+    $("#code").val('');
+    $("#model").val('');
+    $("#brand").val('');
+    $("#type").val('');
+    $("#category").val('');
+    $("#auto").val('');
+    $("#quantity").val('');
+}
+
 function openNewProduct(){
     //console.log("Value: " + $("#row-"+id).find('td').eq(0).html());
     //var code = $("#row-"+id).find('td').eq(0).html();
@@ -53,6 +90,7 @@ function openNewProduct(){
     //
     //$("#add-code").val(code);
     //$("#add-current").val(currentQty);
+    cleanProduct();
     $("#check-container").css('display', 'inline');
     $("#modal-product").modal();
     $("#btn-save").attr("onclick","saveProduct()");
@@ -161,11 +199,154 @@ function openAddProduct(id){
 
     $("#add-code").val(code);
     $("#add-current").val(currentQty);
+    $("#add-quantity").val(0);
 
+    $("#btn-add").attr("onclick","addProduct("+id+")");
     $("#modal-add").modal();
 }
 
-function addProduct(){
+function addProduct(id){
+    var current = parseInt($("#add-current").val());
+    var toAdd = parseInt($("#add-quantity").val());
+    var total = current + toAdd;
+
+    var code = $("#row-"+id).find('td').eq(0).html();
+    var model = $("#row-"+id).find('td').eq(1).html();
+    var brand = $("#row-"+id).find('td').eq(2).html();
+    var type = $("#row-"+id).find('td').eq(3).html();
+    var category = $("#row-"+id).find('td').eq(4).html();
+    var autoCategory = $("#row-"+id).find('td').eq(5).html();
+
+    var data = {
+        code:code,
+        model:model,
+        brand:brand,
+        type:type,
+        category:category,
+        autoCategory: autoCategory,
+        quantity: total
+    }
+
+    $.ajax({
+        data: JSON.stringify(data),
+        type: "PUT",
+        dataType:"json",
+        cahce: false,
+        url:"/stock/"+id+"/",
+        contentType: 'application/json; charset=utf-8',
+    }).done(function (data, textStatus, jqXHR){
+        console.log("el data es: \n" + data );
+        console.log("el textStatus es: \n" + textStatus );
+        console.log("el jqXHR es: \n" + jqXHR );
+        $("#modal-add").modal('hide');
+        loadStock();
+
+    }).fail(function (jqXHR, textStatus, textError){
+        console.log("Error");
+        console.log("el textStatus es: \n" + textStatus );
+        console.log("el jqXHR es: \n" + jqXHR );
+        console.log("el textError es: \n" + textError );
+    });
+
+}
+
+function openShipProduct(id){
+    console.log("Value: " + $("#row-"+id).find('td').eq(0).html());
+    var code = $("#row-"+id).find('td').eq(0).html();
+    var currentQty = parseInt($("#row-"+id).find('td').eq(6).html());
+    var addQty = 0;
+
+    $("#ship-code").val(code);
+    $("#ship-current").val(currentQty);
+    $("#ship-quantity").val(0);
+
+    $("#btn-ship").attr("onclick","shipProduct("+id+")");
+    $("#modal-ship").modal();
+}
+
+function shipProduct(id){
+    var current = parseInt($("#ship-current").val());
+    var toShip = parseInt($("#ship-quantity").val());
+    var total = current - toShip;
+
+    if (toShip > current){
+        message = "The quantity to ship is greater than the quantity in inventory."
+    }else{
+        var data = {
+            id:id,
+            product:$("#ship-code").val(),
+            quantity:$("#ship-quantity").val(),
+            name:$("#ship-name").val(),
+            company:$("#ship-company").val(),
+            address:$("#ship-address").val()
+        }
+
+        $.ajax({
+            data: JSON.stringify(data),
+            type: "POST",
+            dataType:"json",
+            cahce: false,
+            url:"/shipment/",
+            contentType: 'application/json; charset=utf-8',
+        }).done(function (data, textStatus, jqXHR){
+            console.log("el data es: \n" + data );
+            console.log("el textStatus es: \n" + textStatus );
+            console.log("el jqXHR es: \n" + jqXHR );
+
+            removeProdcut(id, total);
+
+            $("#modal-ship").modal('hide');
+            loadShipments();
+
+        }).fail(function (jqXHR, textStatus, textError){
+            console.log("Error");
+            console.log("el textStatus es: \n" + textStatus );
+            console.log("el jqXHR es: \n" + jqXHR );
+            console.log("el textError es: \n" + textError );
+        });
+
+    }
 
 
+
+}
+
+function removeProdcut(id, quantity){
+    var code = $("#row-"+id).find('td').eq(0).html();
+    var model = $("#row-"+id).find('td').eq(1).html();
+    var brand = $("#row-"+id).find('td').eq(2).html();
+    var type = $("#row-"+id).find('td').eq(3).html();
+    var category = $("#row-"+id).find('td').eq(4).html();
+    var autoCategory = $("#row-"+id).find('td').eq(5).html();
+
+    var data = {
+        code:code,
+        model:model,
+        brand:brand,
+        type:type,
+        category:category,
+        autoCategory: autoCategory,
+        quantity: quantity
+    }
+
+    $.ajax({
+        data: JSON.stringify(data),
+        type: "PUT",
+        dataType:"json",
+        cahce: false,
+        url:"/stock/"+id+"/",
+        contentType: 'application/json; charset=utf-8',
+    }).done(function (data, textStatus, jqXHR){
+        console.log("el data es: \n" + data );
+        console.log("el textStatus es: \n" + textStatus );
+        console.log("el jqXHR es: \n" + jqXHR );
+
+        loadStock();
+
+    }).fail(function (jqXHR, textStatus, textError){
+        console.log("Error");
+        console.log("el textStatus es: \n" + textStatus );
+        console.log("el jqXHR es: \n" + jqXHR );
+        console.log("el textError es: \n" + textError );
+    });
 }

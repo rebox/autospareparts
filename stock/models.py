@@ -44,3 +44,14 @@ class Product(models.Model):
         return self.code
 
 
+class Shipment(models.Model):
+    product = models.ForeignKey(Product, models.SET_NULL, blank=True, null=True)
+    quantity = models.IntegerField(default=0)
+    name = models.CharField(max_length=100)
+    company = models.CharField(max_length=100)
+    address = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.product
+
+
