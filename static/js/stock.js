@@ -291,8 +291,7 @@ function shipProduct(id){
         alertify.alert("Auto Spare Parts", "The quantity to ship is greater than the quantity in inventory.");
     }else{
         var data = {
-            id:id,
-            product:$("#ship-code").val(),
+            product:id,
             quantity:$("#ship-quantity").val(),
             name:$("#ship-name").val(),
             company:$("#ship-company").val(),
