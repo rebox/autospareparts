@@ -3,6 +3,9 @@ $(function () {
     loadShipments();
 });
 
+/*
+Get the data of the products and print it in a table
+*/
 function loadStock(){
     $.ajax({
         type: "GET",
@@ -37,6 +40,9 @@ function loadStock(){
     });
 }
 
+/*
+Get the data of the shipments and print it in a table
+*/
 function loadShipments(){
     $.ajax({
         type: "GET",
@@ -64,8 +70,11 @@ function loadShipments(){
     });
 }
 
+/*
+validate data to accept only numbers
+*/
 function validateEntry(e){
-    if (e.key.length === 1) { // Evaluar si es un solo caracter
+    if (e.key.length === 1) { // make sure it's evaluating only one character
         if (!isNaN(parseFloat(e.key))) {
           return true;
         }else{
@@ -73,6 +82,7 @@ function validateEntry(e){
         }
     }
 }
+
 
 function cleanProduct(){
     $("#code").val('');
@@ -84,20 +94,17 @@ function cleanProduct(){
     $("#quantity").val('');
 }
 
+//open modal for new product
 function openNewProduct(){
-    //console.log("Value: " + $("#row-"+id).find('td').eq(0).html());
-    //var code = $("#row-"+id).find('td').eq(0).html();
-    //var currentQty = parseInt($("#row-"+id).find('td').eq(6).html());
-    //var addQty = 0;
-    //
-    //$("#add-code").val(code);
-    //$("#add-current").val(currentQty);
     cleanProduct();
     $("#check-container").css('display', 'inline');
     $("#modal-product").modal();
     $("#btn-save").attr("onclick","saveProduct()");
 }
 
+/*
+get the inputed information and send a request to create a new product
+*/
 function saveProduct(){
     var data = {
         code:$("#code").val(),
@@ -109,7 +116,7 @@ function saveProduct(){
         quantity:$("#quantity").val()
     }
 
-    console.log("data: \n" + JSON.stringify(data));
+    // console.log("data: \n" + JSON.stringify(data));
 
     $.ajax({
         data: JSON.stringify(data),
@@ -138,6 +145,7 @@ function saveProduct(){
     });
 }
 
+//Get the prodcut's information and open modal to edit product
 function openEditProduct(id){
     console.log("Value: " + $("#row-"+id).find('td').eq(0).html());
     var code = $("#row-"+id).find('td').eq(0).html();
@@ -162,6 +170,9 @@ function openEditProduct(id){
     $("#btn-save").attr("onclick","updateProduct("+id+")");
 }
 
+/*
+get the inputed information and send a request to update a product
+*/
 function updateProduct(id){
     var data = {
         code:$("#code").val(),
@@ -199,10 +210,15 @@ function updateProduct(id){
     });
 }
 
+/*
+Funtion to Automatically generate a code based on the product's information such as,
+Model, Brand, Type, Category,  AutoCategory.
+*/
 function generateCode(){
 
 }
 
+//Get the current quantity of the selected product and open modal to add more product
 function openAddProduct(id){
     console.log("Value: " + $("#row-"+id).find('td').eq(0).html());
     var code = $("#row-"+id).find('td').eq(0).html();
@@ -217,6 +233,9 @@ function openAddProduct(id){
     $("#modal-add").modal();
 }
 
+/*
+get the inputed information and send a request to update the quantity of the specifed product
+*/
 function addProduct(id){
     var current = parseInt($("#add-current").val());
     var toAdd = parseInt($("#add-quantity").val());
@@ -268,6 +287,7 @@ function addProduct(id){
 
 }
 
+//open modal for new shipment
 function openShipProduct(id){
     console.log("Value: " + $("#row-"+id).find('td').eq(0).html());
     var code = $("#row-"+id).find('td').eq(0).html();
@@ -282,11 +302,15 @@ function openShipProduct(id){
     $("#modal-ship").modal();
 }
 
+/*
+get the information needed and send a request to create a a new shipment
+*/
 function shipProduct(id){
     var current = parseInt($("#ship-current").val());
     var toShip = parseInt($("#ship-quantity").val());
     var total = current - toShip;
 
+    //Only do the shipment if the quantity to ship is less or equal to the quantity of the product in the inventory
     if (toShip > current){
         alertify.alert("Auto Spare Parts", "The quantity to ship is greater than the quantity in inventory.");
     }else{
@@ -312,13 +336,12 @@ function shipProduct(id){
 
             alertify.alert("Auto Spare Parts", "Product successfully shipped",
             function(){
+                //update the quantity of the product in the inventory
                 removeProdcut(id, total);
 
                 $("#modal-ship").modal('hide');
                 loadShipments();
             });
-
-
 
         }).fail(function (jqXHR, textStatus, textError){
             console.log("Error");
@@ -329,11 +352,11 @@ function shipProduct(id){
         });
 
     }
-
-
-
 }
 
+/*
+Update the product quantity after a shipment
+*/
 function removeProdcut(id, quantity){
     var code = $("#row-"+id).find('td').eq(0).html();
     var model = $("#row-"+id).find('td').eq(1).html();

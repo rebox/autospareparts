@@ -1,6 +1,9 @@
 from django.db import models
 
-# Create your models here.
+'''
+Classes Brand, Type, Category and AutoCategory
+created to avoid using hard-coded options for Product
+'''
 
 
 class Brand(models.Model):
@@ -30,7 +33,10 @@ class AutoCategory(models.Model):
     def __str__(self):
         return self.name
 
-
+'''
+All the information related to a product.
+A product is related to a Brand, Type, Category and AutoCategory
+'''
 class Product(models.Model):
     code = models.CharField(max_length=100)
     model = models.CharField(max_length=10)
@@ -43,7 +49,10 @@ class Product(models.Model):
     def __str__(self):
         return self.code
 
-
+'''
+All the information related to a shipment.
+A shipment is related to a Product.
+'''
 class Shipment(models.Model):
     product = models.ForeignKey(Product, models.SET_NULL, blank=True, null=True)
     quantity = models.IntegerField(default=0)
@@ -53,5 +62,3 @@ class Shipment(models.Model):
 
     def __str__(self):
         return self.product
-
-

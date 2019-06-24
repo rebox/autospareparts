@@ -3,6 +3,9 @@
 from django.db import migrations
 
 
+'''
+Method to populate the initial information needed for the system to work properly.
+'''
 def populate_initial(apps, schema_editor):
     Brand = apps.get_model('stock', 'Brand')
     brand = Brand(name='BOCH')
@@ -26,7 +29,10 @@ def populate_initial(apps, schema_editor):
         auto = AutoCategory(name=auto_name)
         auto.save()
 
-
+'''
+On migrate this class runs the populate_initial methtod to create the initial information for
+the models Brand, Type, Category, AutoCategory
+'''
 class Migration(migrations.Migration):
 
     dependencies = [

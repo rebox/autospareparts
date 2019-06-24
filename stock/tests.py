@@ -4,7 +4,10 @@ from rest_framework.test import APITestCase
 from .models import Brand, Type, Category, AutoCategory, Product, Shipment
 import json
 
-
+'''
+Class to test the functionality of products:
+create, update and list
+'''
 class ProductTests(APITestCase):
     def setUp(self):
         brand = Brand.objects.create(name='Tests Brand')
@@ -41,15 +44,6 @@ class ProductTests(APITestCase):
         }
 
 
-    def test_list_product(self):
-        """
-        Ensure we can list existing products.
-        """
-        url = reverse('stock')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
     def test_create_product(self):
         """
         Ensure we can create a new product.
@@ -75,6 +69,19 @@ class ProductTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+    def test_list_product(self):
+        """
+        Ensure we can list existing products.
+        """
+        url = reverse('stock')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+'''
+Class to test the functionality of shipments:
+create and list
+'''
 class ShipmentTests(APITestCase):
     def setUp(self):
         brand = Brand.objects.create(name='Tests Brand')
@@ -99,15 +106,6 @@ class ShipmentTests(APITestCase):
         }
 
 
-    def test_list_shipment(self):
-        """
-        Ensure we can list existing products.
-        """
-        url = reverse('shipment')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
     def test_create_shipment(self):
         """
         Ensure we can create a new shipment.
@@ -116,3 +114,12 @@ class ShipmentTests(APITestCase):
         data = self.shipment
         response = self.client.post(url, json.dumps(data), content_type='application/json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+    def test_list_shipment(self):
+        """
+        Ensure we can list existing products.
+        """
+        url = reverse('shipment')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
